@@ -6,51 +6,51 @@
 
 @layer base {
   :root {
-    --background: 220 20% 10%;
-    --foreground: 210 20% 92%;
+    --background: 222 22% 8%;
+    --foreground: 210 25% 96%;
 
-    --card: 220 18% 14%;
-    --card-foreground: 210 20% 92%;
+    --card: 222 20% 12%;
+    --card-foreground: 210 25% 96%;
 
-    --popover: 220 18% 14%;
-    --popover-foreground: 210 20% 92%;
+    --popover: 222 20% 12%;
+    --popover-foreground: 210 25% 96%;
 
-    --primary: 160 60% 45%;
-    --primary-foreground: 220 20% 10%;
+    --primary: 160 65% 48%;
+    --primary-foreground: 222 22% 6%;
 
-    --secondary: 220 16% 22%;
-    --secondary-foreground: 210 20% 85%;
+    --secondary: 222 18% 20%;
+    --secondary-foreground: 210 25% 88%;
 
-    --muted: 220 14% 18%;
-    --muted-foreground: 215 12% 55%;
+    --muted: 222 16% 16%;
+    --muted-foreground: 215 14% 52%;
 
-    --accent: 45 90% 55%;
-    --accent-foreground: 220 20% 10%;
+    --accent: 45 95% 58%;
+    --accent-foreground: 222 22% 6%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 72% 52%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 14% 22%;
-    --input: 220 14% 22%;
-    --ring: 160 60% 45%;
+    --border: 222 16% 20%;
+    --input: 222 16% 20%;
+    --ring: 160 65% 48%;
 
     --radius: 0.75rem;
 
-    --serving: 160 60% 45%;
-    --waiting: 45 90% 55%;
-    --done: 215 12% 40%;
-    --queue-chip: 220 16% 26%;
-    --queue-chip-active: 160 60% 45%;
-    --queue-chip-foreground: 210 20% 90%;
+    --serving: 160 65% 48%;
+    --waiting: 45 95% 58%;
+    --done: 215 14% 38%;
+    --queue-chip: 222 18% 24%;
+    --queue-chip-active: 160 65% 48%;
+    --queue-chip-foreground: 210 25% 92%;
 
-    --sidebar-background: 220 20% 8%;
-    --sidebar-foreground: 210 20% 85%;
-    --sidebar-primary: 160 60% 45%;
-    --sidebar-primary-foreground: 220 20% 10%;
-    --sidebar-accent: 220 16% 16%;
-    --sidebar-accent-foreground: 210 20% 85%;
-    --sidebar-border: 220 14% 18%;
-    --sidebar-ring: 160 60% 45%;
+    --sidebar-background: 222 22% 6%;
+    --sidebar-foreground: 210 25% 88%;
+    --sidebar-primary: 160 65% 48%;
+    --sidebar-primary-foreground: 222 22% 6%;
+    --sidebar-accent: 222 18% 14%;
+    --sidebar-accent-foreground: 210 25% 88%;
+    --sidebar-border: 222 16% 16%;
+    --sidebar-ring: 160 65% 48%;
   }
 }
 
@@ -80,14 +80,19 @@
 
   .civic-card:hover {
     border-color: hsl(var(--primary) / 0.4);
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.1);
+    box-shadow: 0 0 24px hsl(var(--primary) / 0.12);
   }
 
   .glow-primary {
-    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+    text-shadow: 0 0 30px hsl(var(--primary) / 0.6), 0 0 60px hsl(var(--primary) / 0.25);
   }
 
   .glow-accent {
-    text-shadow: 0 0 20px hsl(var(--accent) / 0.5);
+    text-shadow: 0 0 30px hsl(var(--accent) / 0.6), 0 0 60px hsl(var(--accent) / 0.25);
+  }
+
+  .now-serving-display {
+    @apply font-mono font-black tracking-widest;
+    text-shadow: 0 0 40px hsl(var(--primary) / 0.7), 0 0 80px hsl(var(--primary) / 0.3);
   }
 }

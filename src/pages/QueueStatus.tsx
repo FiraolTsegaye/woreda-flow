@@ -77,9 +77,9 @@ const QueueStatusPage = () => {
         </div>
 
         {/* Your number */}
-        <div className="civic-card text-center mb-6">
-          <p className="text-muted-foreground text-sm mb-2 uppercase tracking-wider">Your Number</p>
-          <p className="queue-number-display text-6xl text-primary glow-primary">
+        <div className="civic-card text-center mb-6 border-primary/30">
+          <p className="text-muted-foreground text-sm mb-3 uppercase tracking-wider">Your Number</p>
+          <p className="now-serving-display text-7xl text-primary">
             {userTicket.queue_number}
           </p>
         </div>

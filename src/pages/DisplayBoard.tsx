@@ -28,11 +28,11 @@ const DisplayBoard = () => {
                 </h2>
               </div>
 
-              <div className="text-center mb-6">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">
+              <div className="text-center mb-6 bg-muted/50 border border-primary/20 rounded-xl py-8">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] mb-3 font-semibold">
                   Now Serving
                 </p>
-                <p className="queue-number-display text-7xl text-primary glow-primary animate-pulse-glow">
+                <p className="now-serving-display text-8xl lg:text-9xl text-primary">
                   {serving?.queue_number || "—"}
                 </p>
               </div>
