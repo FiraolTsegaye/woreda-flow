@@ -80,14 +80,19 @@
 
   .civic-card:hover {
     border-color: hsl(var(--primary) / 0.4);
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.1);
+    box-shadow: 0 0 24px hsl(var(--primary) / 0.12);
   }
 
   .glow-primary {
-    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+    text-shadow: 0 0 30px hsl(var(--primary) / 0.6), 0 0 60px hsl(var(--primary) / 0.25);
   }
 
   .glow-accent {
-    text-shadow: 0 0 20px hsl(var(--accent) / 0.5);
+    text-shadow: 0 0 30px hsl(var(--accent) / 0.6), 0 0 60px hsl(var(--accent) / 0.25);
+  }
+
+  .now-serving-display {
+    @apply font-mono font-black tracking-widest;
+    text-shadow: 0 0 40px hsl(var(--primary) / 0.7), 0 0 80px hsl(var(--primary) / 0.3);
   }
 }
