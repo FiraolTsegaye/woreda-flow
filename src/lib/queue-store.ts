@@ -23,6 +23,7 @@ function generateQueueNumber(prefix: string, num: number): string {
 
 export const useQueueStore = create<QueueState>((set, get) => ({
   entries: [],
+  counters: {},
   userTickets: [],
   autoSimulation: false,
 
