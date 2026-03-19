@@ -95,14 +95,13 @@ export const useQueueStore = create<QueueState>((set, get) => ({
         nextWaiting.status = "serving";
       }
 
-      // Update user ticket status
-      let userTicket = state.userTicket;
-      if (userTicket) {
-        const updated = entries.find((e) => e.id === userTicket!.id);
-        if (updated) userTicket = updated;
-      }
+      // Update user tickets status
+      const userTickets = state.userTickets.map((t) => {
+        const updated = entries.find((e) => e.id === t.id);
+        return updated || t;
+      });
 
-      return { entries, userTicket };
+      return { entries, userTickets };
     });
   },
 
