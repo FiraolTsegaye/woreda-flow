@@ -137,4 +137,14 @@ export const useQueueStore = create<QueueState>()(
       (e) => e.service_id === serviceId && e.status === "waiting"
     ).length;
   },
-}));
+}),
+    {
+      name: "woreda-queue-storage",
+      partialize: (state) => ({
+        entries: state.entries,
+        counters: state.counters,
+        userTickets: state.userTickets,
+      }),
+    }
+  )
+);

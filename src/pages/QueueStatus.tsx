@@ -9,7 +9,13 @@ const QueueStatusPage = () => {
   const userTickets = useQueueStore((s) => s.userTickets);
   const entries = useQueueStore((s) => s.entries);
 
-  const activeTickets = userTickets.filter((t) => t.status !== "done");
+  // Sync user ticket statuses with main entries
+  const syncedTickets = userTickets.map((t) => {
+    const current = entries.find((e) => e.id === t.id);
+    return current || t;
+  });
+
+  const activeTickets = syncedTickets.filter((t) => t.status !== "done");
 
   if (activeTickets.length === 0) {
     return (
