@@ -1,9 +1,9 @@
-import { useQueueStore } from "@/lib/queue-store";
+import { useSupabaseQueue } from "@/hooks/use-supabase-queue";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
 
 const DisplayBoard = () => {
-  const entries = useQueueStore((s) => s.entries);
+  const { entries } = useSupabaseQueue();
 
   return (
     <div className="min-h-screen bg-background p-8">

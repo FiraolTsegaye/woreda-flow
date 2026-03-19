@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useQueueStore } from "@/lib/queue-store";
+import { useSupabaseQueue, QueueRow } from "@/hooks/use-supabase-queue";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
 import { Clock, Users, Hash } from "lucide-react";
@@ -7,20 +7,21 @@ import { Badge } from "@/components/ui/badge";
 
 const QueueStatusPage = () => {
   const navigate = useNavigate();
-  const userTickets = useQueueStore((s) => s.userTickets);
-  const entries = useQueueStore((s) => s.entries);
+  const { entries, getUserTickets, loading } = useSupabaseQueue();
+  const userTickets = getUserTickets();
 
-  // Sync user ticket statuses with main entries
-  const syncedTickets = userTickets.map((t) => {
-    const current = entries.find((e) => e.id === t.id);
-    return current || t;
-  });
+  const activeTickets = userTickets.filter((t) => t.status !== "done");
+  const completedTickets = userTickets.filter((t) => t.status === "done");
 
-  // Show active first, then completed
-  const activeTickets = syncedTickets.filter((t) => t.status !== "done");
-  const completedTickets = syncedTickets.filter((t) => t.status === "done");
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground text-xl">Loading...</p>
+      </div>
+    );
+  }
 
-  if (syncedTickets.length === 0) {
+  if (userTickets.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -36,8 +37,8 @@ const QueueStatusPage = () => {
     );
   }
 
-  const renderTicket = (ticket: typeof syncedTickets[0]) => {
-    const service = SERVICES.find((s) => s.id === ticket.service_id)!;
+  const renderTicket = (ticket: QueueRow) => {
+    const service = SERVICES.find((s) => s.id === ticket.service_id);
     if (!service) return null;
     const Icon = SERVICE_ICONS[service.icon];
 
@@ -48,18 +49,20 @@ const QueueStatusPage = () => {
     const isServing = ticket.status === "serving";
     const isDone = ticket.status === "done";
 
-    const waitingAhead = isDone || isServing
-      ? 0
-      : entries.filter(
-          (e) =>
-            e.service_id === ticket.service_id &&
-            e.status === "waiting" &&
-            e.created_at < ticket.created_at
-        ).length;
+    const waitingAhead =
+      isDone || isServing
+        ? 0
+        : entries.filter(
+            (e) =>
+              e.service_id === ticket.service_id &&
+              e.status === "waiting" &&
+              e.created_at < ticket.created_at
+          ).length;
 
-    const peopleAhead = isServing || isDone
-      ? 0
-      : waitingAhead + (nowServing && nowServing.id !== ticket.id ? 1 : 0);
+    const peopleAhead =
+      isServing || isDone
+        ? 0
+        : waitingAhead + (nowServing && nowServing.id !== ticket.id ? 1 : 0);
 
     const estimatedWait = Math.max(0, peopleAhead * service.average_service_time_minutes);
 
