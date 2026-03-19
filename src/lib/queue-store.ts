@@ -4,7 +4,7 @@ import { QueueEntry, SERVICES } from "./data";
 interface QueueState {
   entries: QueueEntry[];
   counters: Record<string, number>; // service_id -> last number
-  userTicket: QueueEntry | null;
+  userTickets: QueueEntry[];
   autoSimulation: boolean;
 
   joinQueue: (serviceId: string) => QueueEntry;
