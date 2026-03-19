@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
-import { useQueueStore } from "@/lib/queue-store";
+import { useSupabaseQueue } from "@/hooks/use-supabase-queue";
 import { Clock, FileText, ArrowLeft } from "lucide-react";
 
 const ServiceDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const joinQueue = useQueueStore((s) => s.joinQueue);
+  const { joinQueue } = useSupabaseQueue();
   const service = SERVICES.find((s) => s.id === id);
 
   if (!service) {
@@ -20,8 +20,8 @@ const ServiceDetailPage = () => {
 
   const Icon = SERVICE_ICONS[service.icon];
 
-  const handleJoinQueue = () => {
-    joinQueue(service.id);
+  const handleJoinQueue = async () => {
+    await joinQueue(service.id);
     navigate("/queue");
   };
 

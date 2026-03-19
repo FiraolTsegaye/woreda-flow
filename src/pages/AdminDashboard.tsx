@@ -1,27 +1,22 @@
-import { useEffect, useRef } from "react";
-import { useQueueStore } from "@/lib/queue-store";
+import { useEffect, useRef, useState } from "react";
+import { useSupabaseQueue } from "@/hooks/use-supabase-queue";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
 import { Play, RotateCcw, Users, Clock } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 const AdminDashboard = () => {
-  const entries = useQueueStore((s) => s.entries);
-  const serveNext = useQueueStore((s) => s.serveNext);
-  const resetQueue = useQueueStore((s) => s.resetQueue);
-  const seedQueue = useQueueStore((s) => s.seedQueue);
-  const autoSimulation = useQueueStore((s) => s.autoSimulation);
-  const toggleAutoSimulation = useQueueStore((s) => s.toggleAutoSimulation);
+  const { entries, serveNext, resetQueue, seedQueue, loading } = useSupabaseQueue();
+  const [autoSimulation, setAutoSimulation] = useState(false);
   const intervalsRef = useRef<Record<string, ReturnType<typeof setInterval>>>({});
 
   // Seed queues on first load if empty
   useEffect(() => {
-    const hasEntries = entries.length > 0;
-    if (!hasEntries) {
+    if (!loading && entries.length === 0) {
       SERVICES.forEach((s) => seedQueue(s.id, Math.floor(Math.random() * 8) + 3));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loading]);
 
   // Auto simulation
   useEffect(() => {
@@ -29,7 +24,7 @@ const AdminDashboard = () => {
       SERVICES.forEach((service) => {
         intervalsRef.current[service.id] = setInterval(() => {
           serveNext(service.id);
-        }, service.average_service_time_minutes * 1000); // seconds for demo speed
+        }, service.average_service_time_minutes * 1000);
       });
     } else {
       Object.values(intervalsRef.current).forEach(clearInterval);
@@ -48,7 +43,7 @@ const AdminDashboard = () => {
           <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
           <div className="flex items-center gap-3 civic-card py-3 px-5">
             <span className="text-sm text-muted-foreground">Auto Simulation</span>
-            <Switch checked={autoSimulation} onCheckedChange={toggleAutoSimulation} />
+            <Switch checked={autoSimulation} onCheckedChange={setAutoSimulation} />
             <span className={`text-xs font-semibold ${autoSimulation ? "text-serving" : "text-muted-foreground"}`}>
               {autoSimulation ? "ON" : "OFF"}
             </span>
@@ -70,7 +65,6 @@ const AdminDashboard = () => {
                   <h2 className="text-lg font-semibold text-foreground">{service.name}</h2>
                 </div>
 
-                {/* Now serving */}
                 <div className="text-center bg-muted/60 border border-primary/20 rounded-xl p-6 mb-4">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-[0.25em] mb-2 font-semibold">Now Serving</p>
                   <p className="now-serving-display text-6xl xl:text-7xl text-primary">
@@ -78,7 +72,6 @@ const AdminDashboard = () => {
                   </p>
                 </div>
 
-                {/* Stats */}
                 <div className="flex gap-4 mb-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="w-4 h-4" />
@@ -90,7 +83,6 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                {/* Queue chips */}
                 <div className="flex flex-wrap gap-2 mb-4 max-h-24 overflow-y-auto">
                   {waiting.map((entry) => (
                     <span
@@ -105,7 +97,6 @@ const AdminDashboard = () => {
                   )}
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-3">
                   <button
                     onClick={() => serveNext(service.id)}
