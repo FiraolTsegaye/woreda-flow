@@ -71,9 +71,9 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Now serving */}
-                <div className="text-center bg-muted rounded-lg p-4 mb-4">
-                  <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Now Serving</p>
-                  <p className="queue-number-display text-5xl text-primary glow-primary">
+                <div className="text-center bg-muted/60 border border-primary/20 rounded-xl p-6 mb-4">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-[0.25em] mb-2 font-semibold">Now Serving</p>
+                  <p className="now-serving-display text-6xl xl:text-7xl text-primary">
                     {serving?.queue_number || "—"}
                   </p>
                 </div>
