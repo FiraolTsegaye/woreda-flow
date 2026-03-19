@@ -23,8 +23,7 @@ function generateQueueNumber(prefix: string, num: number): string {
 
 export const useQueueStore = create<QueueState>((set, get) => ({
   entries: [],
-  counters: {},
-  userTicket: null,
+  userTickets: [],
   autoSimulation: false,
 
   joinQueue: (serviceId: string) => {
