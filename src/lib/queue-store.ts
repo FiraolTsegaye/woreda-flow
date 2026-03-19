@@ -51,7 +51,7 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     set((state) => ({
       entries: [...state.entries, entry],
       counters: { ...state.counters, [serviceId]: nextCount },
-      userTicket: entry,
+      userTickets: [...state.userTickets, entry],
     }));
     return entry;
   },
