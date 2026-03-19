@@ -1,9 +1,10 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { QueueEntry, SERVICES } from "./data";
 
 interface QueueState {
   entries: QueueEntry[];
-  counters: Record<string, number>; // service_id -> last number
+  counters: Record<string, number>;
   userTickets: QueueEntry[];
   autoSimulation: boolean;
 
@@ -21,7 +22,9 @@ function generateQueueNumber(prefix: string, num: number): string {
   return `${prefix}${String(num).padStart(3, "0")}`;
 }
 
-export const useQueueStore = create<QueueState>((set, get) => ({
+export const useQueueStore = create<QueueState>()(
+  persist(
+    (set, get) => ({
   entries: [],
   counters: {},
   userTickets: [],
@@ -134,4 +137,14 @@ export const useQueueStore = create<QueueState>((set, get) => ({
       (e) => e.service_id === serviceId && e.status === "waiting"
     ).length;
   },
-}));
+}),
+    {
+      name: "woreda-queue-storage",
+      partialize: (state) => ({
+        entries: state.entries,
+        counters: state.counters,
+        userTickets: state.userTickets,
+      }),
+    }
+  )
+);
