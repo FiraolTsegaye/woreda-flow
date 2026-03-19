@@ -109,8 +109,7 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     set((state) => ({
       entries: state.entries.filter((e) => e.service_id !== serviceId),
       counters: { ...state.counters, [serviceId]: 0 },
-      userTicket:
-        state.userTicket?.service_id === serviceId ? null : state.userTicket,
+      userTickets: state.userTickets.filter((t) => t.service_id !== serviceId),
     }));
   },
 
