@@ -4,7 +4,7 @@ import { QueueEntry, SERVICES } from "./data";
 interface QueueState {
   entries: QueueEntry[];
   counters: Record<string, number>; // service_id -> last number
-  userTicket: QueueEntry | null;
+  userTickets: QueueEntry[];
   autoSimulation: boolean;
 
   joinQueue: (serviceId: string) => QueueEntry;
@@ -24,7 +24,7 @@ function generateQueueNumber(prefix: string, num: number): string {
 export const useQueueStore = create<QueueState>((set, get) => ({
   entries: [],
   counters: {},
-  userTicket: null,
+  userTickets: [],
   autoSimulation: false,
 
   joinQueue: (serviceId: string) => {
@@ -51,7 +51,7 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     set((state) => ({
       entries: [...state.entries, entry],
       counters: { ...state.counters, [serviceId]: nextCount },
-      userTicket: entry,
+      userTickets: [...state.userTickets, entry],
     }));
     return entry;
   },
@@ -95,14 +95,13 @@ export const useQueueStore = create<QueueState>((set, get) => ({
         nextWaiting.status = "serving";
       }
 
-      // Update user ticket status
-      let userTicket = state.userTicket;
-      if (userTicket) {
-        const updated = entries.find((e) => e.id === userTicket!.id);
-        if (updated) userTicket = updated;
-      }
+      // Update user tickets status
+      const userTickets = state.userTickets.map((t) => {
+        const updated = entries.find((e) => e.id === t.id);
+        return updated || t;
+      });
 
-      return { entries, userTicket };
+      return { entries, userTickets };
     });
   },
 
@@ -110,8 +109,7 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     set((state) => ({
       entries: state.entries.filter((e) => e.service_id !== serviceId),
       counters: { ...state.counters, [serviceId]: 0 },
-      userTicket:
-        state.userTicket?.service_id === serviceId ? null : state.userTicket,
+      userTickets: state.userTickets.filter((t) => t.service_id !== serviceId),
     }));
   },
 
