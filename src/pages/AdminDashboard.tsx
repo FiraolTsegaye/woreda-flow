@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSupabaseQueue } from "@/hooks/use-supabase-queue";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
-import { Play, RotateCcw, Users, Clock } from "lucide-react";
+import { Play, RotateCcw, Users, Clock, CheckCircle2, Timer, TrendingUp } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 const AdminDashboard = () => {
@@ -36,6 +36,36 @@ const AdminDashboard = () => {
     };
   }, [autoSimulation, serveNext]);
 
+  // Analytics: today's served tickets, average wait, busiest service
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const startMs = startOfToday.getTime();
+
+  const todaysEntries = entries.filter(
+    (e) => new Date(e.created_at).getTime() >= startMs
+  );
+  const servedToday = todaysEntries.filter((e) => e.status === "done").length;
+
+  // Average wait = avg of (avg_service_time × position-in-queue) across waiting tickets today
+  const waitingToday = todaysEntries.filter((e) => e.status === "waiting");
+  let avgWaitMinutes = 0;
+  if (waitingToday.length > 0) {
+    const totals = SERVICES.map((s) => {
+      const w = waitingToday.filter((e) => e.service_id === s.id).length;
+      // Sum of wait minutes for each person in line: 1+2+...+w = w(w+1)/2 × avg time
+      return ((w * (w + 1)) / 2) * s.average_service_time_minutes;
+    });
+    const totalWait = totals.reduce((a, b) => a + b, 0);
+    avgWaitMinutes = Math.round(totalWait / waitingToday.length);
+  }
+
+  // Busiest = service with most tickets today (any status)
+  const counts = SERVICES.map((s) => ({
+    service: s,
+    count: todaysEntries.filter((e) => e.service_id === s.id).length,
+  }));
+  const busiest = counts.reduce((a, b) => (b.count > a.count ? b : a), counts[0]);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -47,6 +77,40 @@ const AdminDashboard = () => {
             <span className={`text-xs font-semibold ${autoSimulation ? "text-serving" : "text-muted-foreground"}`}>
               {autoSimulation ? "ON" : "OFF"}
             </span>
+          </div>
+        </div>
+
+        {/* Analytics summary */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="civic-card flex items-center gap-4">
+            <div className="rounded-lg bg-primary/10 p-3">
+              <CheckCircle2 className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-semibold">Served Today</p>
+              <p className="now-serving-display text-3xl text-foreground">{servedToday}</p>
+            </div>
+          </div>
+          <div className="civic-card flex items-center gap-4">
+            <div className="rounded-lg bg-primary/10 p-3">
+              <Timer className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-semibold">Avg Wait</p>
+              <p className="now-serving-display text-3xl text-foreground">{avgWaitMinutes}<span className="text-base text-muted-foreground ml-1">min</span></p>
+            </div>
+          </div>
+          <div className="civic-card flex items-center gap-4">
+            <div className="rounded-lg bg-primary/10 p-3">
+              <TrendingUp className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-semibold">Busiest Service</p>
+              <p className="text-lg font-semibold text-foreground leading-tight">
+                {busiest.count > 0 ? busiest.service.name : "—"}
+              </p>
+              <p className="text-xs text-muted-foreground">{busiest.count} tickets</p>
+            </div>
           </div>
         </div>
 
