@@ -56,9 +56,9 @@ const AdminDashboard = () => {
           <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
           <div className="flex items-center gap-3 civic-card py-3 px-5">
             <span className="text-sm text-muted-foreground">Auto Simulation</span>
-            <Switch checked={autoSimulation} onCheckedChange={setAutoSimulation} />
+            <Switch checked={allOn} onCheckedChange={setAutoSimulation} />
             <span className={`text-xs font-semibold ${autoSimulation ? "text-serving" : "text-muted-foreground"}`}>
-              {autoSimulation ? "ON" : "OFF"}
+              {autoSimulation ? `${enabledCount}/${SERVICES.length} ON` : "OFF"}
             </span>
           </div>
         </div>
