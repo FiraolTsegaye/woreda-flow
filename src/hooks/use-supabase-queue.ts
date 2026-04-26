@@ -8,6 +8,7 @@ export interface QueueRow {
   queue_number: string;
   status: "waiting" | "serving" | "done";
   created_at: string;
+  served_at: string | null;
 }
 
 // Track which queue IDs belong to this user (no auth, so localStorage)
@@ -105,10 +106,10 @@ export function useSupabaseQueue() {
   }, []);
 
   const serveNext = useCallback(async (serviceId: string) => {
-    // Mark current serving as done
+    // Mark current serving as done (stamp served_at)
     await supabase
       .from("queues")
-      .update({ status: "done" })
+      .update({ status: "done", served_at: new Date().toISOString() })
       .eq("service_id", serviceId)
       .eq("status", "serving");
 
