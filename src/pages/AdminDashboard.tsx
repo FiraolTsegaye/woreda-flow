@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { useSupabaseQueue } from "@/hooks/use-supabase-queue";
+import { useSimulation } from "@/lib/simulation-context";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
 import { Play, RotateCcw, Users, Clock, CheckCircle2, Timer, TrendingUp } from "lucide-react";
@@ -7,8 +8,7 @@ import { Switch } from "@/components/ui/switch";
 
 const AdminDashboard = () => {
   const { entries, serveNext, resetQueue, seedQueue, loading } = useSupabaseQueue();
-  const [autoSimulation, setAutoSimulation] = useState(false);
-  const intervalsRef = useRef<Record<string, ReturnType<typeof setInterval>>>({});
+  const { autoSimulation, setAutoSimulation } = useSimulation();
 
   // Seed queues on first load if empty
   useEffect(() => {
@@ -17,24 +17,6 @@ const AdminDashboard = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
-
-  // Auto simulation
-  useEffect(() => {
-    if (autoSimulation) {
-      SERVICES.forEach((service) => {
-        intervalsRef.current[service.id] = setInterval(() => {
-          serveNext(service.id);
-        }, service.average_service_time_minutes * 1000);
-      });
-    } else {
-      Object.values(intervalsRef.current).forEach(clearInterval);
-      intervalsRef.current = {};
-    }
-
-    return () => {
-      Object.values(intervalsRef.current).forEach(clearInterval);
-    };
-  }, [autoSimulation, serveNext]);
 
   // Analytics: today's served tickets, average wait, busiest service
   const startOfToday = new Date();
