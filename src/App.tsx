@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AppHeader from "@/components/AppHeader";
+import { SimulationProvider } from "@/lib/simulation-context";
 import ServicesPage from "./pages/Services";
 import ServiceDetailPage from "./pages/ServiceDetail";
 import QueueStatusPage from "./pages/QueueStatus";
@@ -18,18 +19,20 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <AppHeader />
-        <Routes>
-          <Route path="/" element={<Navigate to="/services" replace />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/service/:id" element={<ServiceDetailPage />} />
-          <Route path="/queue" element={<QueueStatusPage />} />
-          <Route path="/display" element={<DisplayBoard />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <SimulationProvider>
+        <BrowserRouter>
+          <AppHeader />
+          <Routes>
+            <Route path="/" element={<Navigate to="/services" replace />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/service/:id" element={<ServiceDetailPage />} />
+            <Route path="/queue" element={<QueueStatusPage />} />
+            <Route path="/display" element={<DisplayBoard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </SimulationProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
