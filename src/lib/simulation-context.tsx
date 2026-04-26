@@ -1,15 +1,23 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import { SERVICES } from "@/lib/data";
 
-const STORAGE_KEY = "woreda-auto-simulation";
+const STORAGE_KEY = "woreda-auto-simulation"; // legacy global flag (kept for migration)
+const PER_SERVICE_STORAGE_KEY = "woreda-auto-simulation-services";
 
 // Demo cadence: 1 simulated minute = 1 real second. Change to 60_000 for true minutes.
 const MS_PER_SIMULATED_MINUTE = 1000;
 
 interface SimulationContextValue {
+  /** True if at least one service has auto simulation on. */
   autoSimulation: boolean;
+  /** Turn auto simulation on/off for ALL services at once. */
   setAutoSimulation: (on: boolean) => void;
+  /** Per-service map of serviceId -> enabled. */
+  serviceFlags: Record<string, boolean>;
+  /** Toggle a single service. */
+  setServiceAuto: (serviceId: string, on: boolean) => void;
+  isServiceAuto: (serviceId: string) => boolean;
 }
 
 const SimulationContext = createContext<SimulationContextValue | undefined>(undefined);
@@ -20,24 +28,71 @@ interface ServingRow {
   created_at: string;
 }
 
-export function SimulationProvider({ children }: { children: ReactNode }) {
-  const [autoSimulation, setAutoSimulationState] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY) === "true";
-    } catch {
-      return false;
+function loadInitialFlags(): Record<string, boolean> {
+  try {
+    const raw = localStorage.getItem(PER_SERVICE_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Record<string, boolean>;
+      // Ensure every known service has an entry.
+      const next: Record<string, boolean> = {};
+      SERVICES.forEach((s) => {
+        next[s.id] = !!parsed[s.id];
+      });
+      return next;
     }
-  });
+    // Migrate from legacy global flag.
+    const legacy = localStorage.getItem(STORAGE_KEY) === "true";
+    const next: Record<string, boolean> = {};
+    SERVICES.forEach((s) => {
+      next[s.id] = legacy;
+    });
+    return next;
+  } catch {
+    const next: Record<string, boolean> = {};
+    SERVICES.forEach((s) => {
+      next[s.id] = false;
+    });
+    return next;
+  }
+}
+
+export function SimulationProvider({ children }: { children: ReactNode }) {
+  const [serviceFlags, setServiceFlags] = useState<Record<string, boolean>>(loadInitialFlags);
 
   const timeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
-
-  const setAutoSimulation = useCallback((on: boolean) => {
-    setAutoSimulationState(on);
+  // Keep latest flags accessible inside async callbacks/subscriptions.
+  const flagsRef = useRef(serviceFlags);
+  useEffect(() => {
+    flagsRef.current = serviceFlags;
     try {
-      localStorage.setItem(STORAGE_KEY, String(on));
+      localStorage.setItem(PER_SERVICE_STORAGE_KEY, JSON.stringify(serviceFlags));
     } catch {
       // ignore
     }
+  }, [serviceFlags]);
+
+  const autoSimulation = useMemo(
+    () => Object.values(serviceFlags).some(Boolean),
+    [serviceFlags]
+  );
+
+  const setServiceAuto = useCallback((serviceId: string, on: boolean) => {
+    setServiceFlags((prev) => ({ ...prev, [serviceId]: on }));
+  }, []);
+
+  const isServiceAuto = useCallback(
+    (serviceId: string) => !!flagsRef.current[serviceId],
+    []
+  );
+
+  const setAutoSimulation = useCallback((on: boolean) => {
+    setServiceFlags(() => {
+      const next: Record<string, boolean> = {};
+      SERVICES.forEach((s) => {
+        next[s.id] = on;
+      });
+      return next;
+    });
   }, []);
 
   // Advance one service: mark current serving as done, promote next waiting.
@@ -61,18 +116,21 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Re-plan all per-service timeouts based on current DB state.
+  // Re-plan all per-service timeouts based on current DB state and per-service flags.
   const reschedule = useCallback(async () => {
     // Clear any pending timeouts
     Object.values(timeoutsRef.current).forEach(clearTimeout);
     timeoutsRef.current = {};
 
-    if (!autoSimulation) return;
+    const flags = flagsRef.current;
+    const enabledServiceIds = SERVICES.filter((s) => flags[s.id]).map((s) => s.id);
+    if (enabledServiceIds.length === 0) return;
 
     const { data } = await supabase
       .from("queues")
       .select("id, service_id, created_at")
-      .eq("status", "serving");
+      .eq("status", "serving")
+      .in("service_id", enabledServiceIds);
 
     const servingByService: Record<string, ServingRow> = {};
     (data as ServingRow[] | null)?.forEach((row) => {
@@ -82,25 +140,23 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const now = Date.now();
 
     SERVICES.forEach((service) => {
+      if (!flags[service.id]) return;
       const serving = servingByService[service.id];
       const serviceMs = service.average_service_time_minutes * MS_PER_SIMULATED_MINUTE;
 
       if (serving) {
-        // Schedule based on when this ticket started being served.
         const startedAt = new Date(serving.created_at).getTime();
         const elapsed = now - startedAt;
         const remaining = Math.max(0, serviceMs - elapsed);
         timeoutsRef.current[service.id] = setTimeout(() => {
           advanceService(service.id);
-          // The realtime subscription will trigger reschedule() again.
+          // Realtime subscription will trigger reschedule() again.
         }, remaining);
       }
-      // If no one is being served, do nothing — promotion happens when a ticket joins,
-      // and the realtime subscription will then schedule its completion.
     });
-  }, [autoSimulation, advanceService]);
+  }, [advanceService]);
 
-  // Subscribe to queue changes so we can re-plan whenever DB state shifts.
+  // Subscribe to queue changes and re-plan whenever flags or DB state shift.
   useEffect(() => {
     if (!autoSimulation) {
       Object.values(timeoutsRef.current).forEach(clearTimeout);
@@ -126,10 +182,12 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       Object.values(timeoutsRef.current).forEach(clearTimeout);
       timeoutsRef.current = {};
     };
-  }, [autoSimulation, reschedule]);
+  }, [autoSimulation, reschedule, serviceFlags]);
 
   return (
-    <SimulationContext.Provider value={{ autoSimulation, setAutoSimulation }}>
+    <SimulationContext.Provider
+      value={{ autoSimulation, setAutoSimulation, serviceFlags, setServiceAuto, isServiceAuto }}
+    >
       {children}
     </SimulationContext.Provider>
   );
