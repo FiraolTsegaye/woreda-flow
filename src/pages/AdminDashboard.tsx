@@ -107,9 +107,24 @@ const AdminDashboard = () => {
 
             return (
               <div key={service.id} className="civic-card">
-                <div className="flex items-center gap-3 mb-4">
-                  <Icon className="w-5 h-5 text-primary" />
-                  <h2 className="text-lg font-semibold text-foreground">{service.name}</h2>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon className="w-5 h-5 text-primary shrink-0" />
+                    <h2 className="text-lg font-semibold text-foreground truncate">{service.name}</h2>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={`text-[10px] font-semibold uppercase tracking-wider ${
+                        serviceFlags[service.id] ? "text-serving" : "text-muted-foreground"
+                      }`}
+                    >
+                      Auto
+                    </span>
+                    <Switch
+                      checked={!!serviceFlags[service.id]}
+                      onCheckedChange={(on) => setServiceAuto(service.id, on)}
+                    />
+                  </div>
                 </div>
 
                 <div className="text-center bg-muted/60 border border-primary/20 rounded-xl p-6 mb-4">
