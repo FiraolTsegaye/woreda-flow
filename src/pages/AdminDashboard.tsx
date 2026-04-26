@@ -44,19 +44,18 @@ const AdminDashboard = () => {
   const todaysEntries = entries.filter(
     (e) => new Date(e.created_at).getTime() >= startMs
   );
-  const servedToday = todaysEntries.filter((e) => e.status === "done").length;
+  const doneToday = todaysEntries.filter((e) => e.status === "done");
+  const servedToday = doneToday.length;
 
-  // Average wait = avg of (avg_service_time × position-in-queue) across waiting tickets today
-  const waitingToday = todaysEntries.filter((e) => e.status === "waiting");
+  // True average wait = avg of (served_at - created_at) across done tickets today
   let avgWaitMinutes = 0;
-  if (waitingToday.length > 0) {
-    const totals = SERVICES.map((s) => {
-      const w = waitingToday.filter((e) => e.service_id === s.id).length;
-      // Sum of wait minutes for each person in line: 1+2+...+w = w(w+1)/2 × avg time
-      return ((w * (w + 1)) / 2) * s.average_service_time_minutes;
-    });
-    const totalWait = totals.reduce((a, b) => a + b, 0);
-    avgWaitMinutes = Math.round(totalWait / waitingToday.length);
+  const waitedMs = doneToday
+    .filter((e) => e.served_at)
+    .map((e) => new Date(e.served_at as string).getTime() - new Date(e.created_at).getTime())
+    .filter((ms) => ms >= 0);
+  if (waitedMs.length > 0) {
+    const totalMs = waitedMs.reduce((a, b) => a + b, 0);
+    avgWaitMinutes = Math.round(totalMs / waitedMs.length / 60000);
   }
 
   // Busiest = service with most tickets today (any status)
