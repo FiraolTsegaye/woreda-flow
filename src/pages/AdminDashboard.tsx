@@ -8,7 +8,9 @@ import { Switch } from "@/components/ui/switch";
 
 const AdminDashboard = () => {
   const { entries, serveNext, resetQueue, seedQueue, loading } = useSupabaseQueue();
-  const { autoSimulation, setAutoSimulation } = useSimulation();
+  const { autoSimulation, setAutoSimulation, serviceFlags, setServiceAuto } = useSimulation();
+  const enabledCount = Object.values(serviceFlags).filter(Boolean).length;
+  const allOn = enabledCount === SERVICES.length;
 
   // Seed queues on first load if empty
   useEffect(() => {
