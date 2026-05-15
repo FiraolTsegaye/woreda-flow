@@ -28,6 +28,7 @@ const QueueStatusPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
+        <QueueHelmet />
         <p className="text-muted-foreground text-xl">Loading...</p>
       </div>
     );
@@ -36,6 +37,7 @@ const QueueStatusPage = () => {
   if (userTickets.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
+        <QueueHelmet />
         <div className="text-center">
           <p className="text-muted-foreground text-xl mb-4">You haven't joined any queues yet.</p>
           <button
@@ -130,6 +132,7 @@ const QueueStatusPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <QueueHelmet />
       <div className="container mx-auto px-4 py-12 max-w-2xl space-y-6">
         <h1 className="text-2xl font-bold text-foreground">My Queues</h1>
         {activeTickets.map(renderTicket)}
