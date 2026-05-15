@@ -1,9 +1,21 @@
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { useSupabaseQueue, QueueRow } from "@/hooks/use-supabase-queue";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
 import { Clock, Users, Hash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+const QueueHelmet = () => (
+  <Helmet>
+    <title>My Queue — Track Your Ticket | Woreda-Wait</title>
+    <meta name="description" content="Track your active Woreda service tickets and live wait times in real time." />
+    <link rel="canonical" href="/queue" />
+    <meta property="og:title" content="My Queue — Woreda-Wait" />
+    <meta property="og:description" content="Track your active Woreda tickets in real time." />
+    <meta property="og:url" content="/queue" />
+  </Helmet>
+);
 
 const QueueStatusPage = () => {
   const navigate = useNavigate();

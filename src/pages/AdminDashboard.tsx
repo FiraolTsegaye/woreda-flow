@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useSupabaseQueue } from "@/hooks/use-supabase-queue";
 import { useSimulation } from "@/lib/simulation-context";
 import { SERVICES } from "@/lib/data";
