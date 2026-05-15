@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
 import { useSupabaseQueue } from "@/hooks/use-supabase-queue";
