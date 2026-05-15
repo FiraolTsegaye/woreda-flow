@@ -1,0 +1,18 @@
+# Woreda-Wait
+
+> Digital queue management for Ethiopian Woreda (district) government services. Citizens join queues remotely and track real-time wait times for services like ID renewal, birth certificates, and business licenses.
+
+## Pages
+
+- [Services](/services): Browse available Woreda services and join a digital queue.
+- [ID Renewal](/service/id-renewal): Renew a national ID card. Required: old ID, 2 passport photos, Kebele letter.
+- [Birth Certificate](/service/birth-certificate): Apply for a birth certificate. Required: parent ID, hospital record, Kebele letter, photos.
+- [Residence Registration](/service/residence-registration): Register a residence. Required: ID, lease/ownership document, Kebele letter, utility bill.
+- [Business License](/service/business-license): Apply for a business license. Required: ID, TIN, business plan, lease, photos.
+- [Marriage Certificate](/service/marriage-certificate): Register a marriage. Required: spouse IDs, witnesses, Kebele letter, photos.
+- [My Queue](/queue): Track your current ticket and live wait time.
+- [Display Board](/display): Public lobby display showing the current ticket being served per service.
+
+## Optional
+
+- [Admin](/admin): Internal dashboard for staff to manage queues.

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useSupabaseQueue } from "@/hooks/use-supabase-queue";
 import { useSimulation } from "@/lib/simulation-context";
 import { SERVICES } from "@/lib/data";
@@ -51,6 +52,12 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Admin Dashboard — Manage Queues | Woreda-Wait</title>
+        <meta name="description" content="Internal Woreda staff dashboard to serve next, reset queues, and monitor today's wait time analytics." />
+        <meta name="robots" content="noindex" />
+        <link rel="canonical" href="/admin" />
+      </Helmet>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>

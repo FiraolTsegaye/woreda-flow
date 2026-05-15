@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
 import { useSupabaseQueue } from "@/hooks/use-supabase-queue";
@@ -25,9 +26,27 @@ const ServiceDetailPage = () => {
     navigate("/queue");
   };
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "GovernmentService",
+    name: service.name,
+    serviceType: service.name,
+    provider: { "@type": "GovernmentOrganization", name: "Woreda Office" },
+    areaServed: { "@type": "Country", name: "Ethiopia" },
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12 max-w-2xl">
+      <Helmet>
+        <title>{`${service.name} — Required Documents & Queue | Woreda-Wait`}</title>
+        <meta name="description" content={`Apply for ${service.name} at your Woreda. Required documents: ${service.required_documents.join(", ")}. Average service time ${service.average_service_time_minutes} minutes.`} />
+        <link rel="canonical" href={`/service/${service.id}`} />
+        <meta property="og:title" content={`${service.name} — Woreda-Wait`} />
+        <meta property="og:description" content={`Required documents and digital queue for ${service.name}.`} />
+        <meta property="og:url" content={`/service/${service.id}`} />
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      </Helmet>
+      <main className="container mx-auto px-4 py-12 max-w-2xl">
         <button
           onClick={() => navigate("/services")}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
@@ -74,7 +93,7 @@ const ServiceDetailPage = () => {
             Join Queue
           </button>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

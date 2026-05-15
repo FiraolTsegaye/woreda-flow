@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
 import { Clock } from "lucide-react";
@@ -6,7 +7,15 @@ import { Clock } from "lucide-react";
 const ServicesPage = () => {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12">
+      <Helmet>
+        <title>Woreda Services — Join a Digital Queue | Woreda-Wait</title>
+        <meta name="description" content="Browse Woreda government services — ID renewal, birth certificates, residence registration, business licenses, and marriage certificates — and join the queue digitally." />
+        <link rel="canonical" href="/services" />
+        <meta property="og:title" content="Woreda Services — Join a Digital Queue" />
+        <meta property="og:description" content="Browse Woreda services and join the queue digitally." />
+        <meta property="og:url" content="/services" />
+      </Helmet>
+      <main className="container mx-auto px-4 py-12">
         <div className="mb-10 text-center">
           <h1 className="text-4xl font-bold tracking-tight text-foreground mb-2">
             Woreda Services
@@ -47,7 +56,7 @@ const ServicesPage = () => {
             );
           })}
         </div>
-      </div>
+      </main>
     </div>
   );
 };

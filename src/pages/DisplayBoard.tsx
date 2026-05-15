@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useSupabaseQueue } from "@/hooks/use-supabase-queue";
 import { SERVICES } from "@/lib/data";
 import { SERVICE_ICONS } from "@/lib/icons";
@@ -7,6 +8,14 @@ const DisplayBoard = () => {
 
   return (
     <div className="min-h-screen bg-background p-8">
+      <Helmet>
+        <title>Lobby Display Board — Now Serving | Woreda-Wait</title>
+        <meta name="description" content="Public lobby display board showing the ticket currently being served at each Woreda service counter." />
+        <link rel="canonical" href="/display" />
+        <meta property="og:title" content="Lobby Display Board — Woreda-Wait" />
+        <meta property="og:description" content="Live now-serving board for Woreda service counters." />
+        <meta property="og:url" content="/display" />
+      </Helmet>
       <h1 className="text-3xl font-bold text-center text-foreground mb-8 tracking-tight">
         WOREDA SERVICE — QUEUE DISPLAY
       </h1>
