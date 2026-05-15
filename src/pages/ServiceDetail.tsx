@@ -65,9 +65,9 @@ const ServiceDetailPage = () => {
               <div className="flex items-center gap-2 text-muted-foreground mt-1">
                 <Clock className="w-4 h-4" />
                 <span>Avg. {service.average_service_time_minutes} min per person</span>
-        </div>
-      </main>
-    </div>
+              </div>
+            </div>
+          </div>
 
           <div className="border-t border-border pt-6">
             <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -93,7 +93,7 @@ const ServiceDetailPage = () => {
             Join Queue
           </button>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
