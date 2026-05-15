@@ -34,8 +34,9 @@ const AppHeader = () => {
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
-                <item.icon className="w-4 h-4" />
+                <item.icon className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden sm:inline">{item.label}</span>
+                <span className="sr-only sm:hidden">{item.label}</span>
               </Link>
             );
           })}
