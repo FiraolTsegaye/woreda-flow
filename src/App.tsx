@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AppHeader from "@/components/AppHeader";
+import AdminGate from "@/components/AdminGate";
 import { SimulationProvider } from "@/lib/simulation-context";
 import ServicesPage from "./pages/Services";
 import ServiceDetailPage from "./pages/ServiceDetail";
@@ -28,7 +29,7 @@ const App = () => (
             <Route path="/service/:id" element={<ServiceDetailPage />} />
             <Route path="/queue" element={<QueueStatusPage />} />
             <Route path="/display" element={<DisplayBoard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminGate><AdminDashboard /></AdminGate>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
