@@ -131,6 +131,14 @@ export function useSupabaseQueue() {
   }, []);
 
   const resetQueue = useCallback(async (serviceId: string) => {
+    // Mark all active entries as done first (RLS only allows deleting 'done' rows)
+    await supabase
+      .from("queues")
+      .update({ status: "done", served_at: new Date().toISOString() })
+      .eq("service_id", serviceId)
+      .in("status", ["waiting", "serving"]);
+
+    // Now delete all done entries for this service
     await supabase.from("queues").delete().eq("service_id", serviceId);
   }, []);
 
