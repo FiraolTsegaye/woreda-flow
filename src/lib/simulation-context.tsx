@@ -139,21 +139,52 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
 
     const now = Date.now();
 
+    // Load existing start times from localStorage
+    let localTimes: Record<string, number> = {};
+    try {
+      localTimes = JSON.parse(localStorage.getItem("woreda-serving-start-times") || "{}");
+    } catch {
+      // ignore
+    }
+
+    const updatedLocalTimes: Record<string, number> = {};
+
     SERVICES.forEach((service) => {
       if (!flags[service.id]) return;
       const serving = servingByService[service.id];
+      if (!serving) return;
+
       const serviceMs = service.average_service_time_minutes * MS_PER_SIMULATED_MINUTE;
 
-      if (serving) {
-        const startedAt = new Date(serving.created_at).getTime();
-        const elapsed = now - startedAt;
-        const remaining = Math.max(0, serviceMs - elapsed);
-        timeoutsRef.current[service.id] = setTimeout(() => {
-          advanceService(service.id);
-          // Realtime subscription will trigger reschedule() again.
-        }, remaining);
+      // Determine when this ticket actually started serving
+      let startedAt = localTimes[serving.id];
+      if (!startedAt) {
+        const createdTime = new Date(serving.created_at).getTime();
+        // If it was created recently (e.g. within 3 seconds), it was served immediately.
+        // Otherwise, it was just promoted from waiting status, so it starts serving now.
+        if (now - createdTime < 3000) {
+          startedAt = createdTime;
+        } else {
+          startedAt = now;
+        }
       }
+
+      updatedLocalTimes[serving.id] = startedAt;
+
+      const elapsed = now - startedAt;
+      const remaining = Math.max(0, serviceMs - elapsed);
+
+      timeoutsRef.current[service.id] = setTimeout(() => {
+        advanceService(service.id);
+      }, remaining);
     });
+
+    // Save updated times (automatically cleans up completed/deleted tickets)
+    try {
+      localStorage.setItem("woreda-serving-start-times", JSON.stringify(updatedLocalTimes));
+    } catch {
+      // ignore
+    }
   }, [advanceService]);
 
   // Subscribe to queue changes and re-plan whenever flags or DB state shift.
